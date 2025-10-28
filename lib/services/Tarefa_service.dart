@@ -1,20 +1,71 @@
+import 'dart:convert';
+
 import 'package:app_segunda/models/tarefa.dart';
+import 'package:http/http.dart' as http;
 
 class TarefaService {
-  List<Tarefa> listarTodas(){
+  Future<List<Tarefa>> listarTodas() async {
+    List<Tarefa> listaDeTarefas = [];
 
-    List<Tarefa> tarefas = [];
+    final resposta = await http.get(
+      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas"),
+    );
 
-    var tarefa01 = Tarefa(1, "Limpar a casa", "Porque ela precisa estar limpa");
-    var tarefa02 = Tarefa(2, "Estudar flutter", "Para não reprovar");
-    var tarefa03 = Tarefa(3, "Lavar louça", "Para a louça não ficar suja");
+    if (resposta.statusCode != 200) {
+      throw Exception("Falha ao carregar todas as tarefas!");
+    }
 
+    var bodyDecodificado = jsonDecode(resposta.body);
 
-    tarefas.add(tarefa01);
-    tarefas.add(tarefa02);
-    tarefas.add(tarefa03);
-    
+    for (var jsonDecode in bodyDecodificado) {
+      Tarefa tarefa = Tarefa(
+        jsonDecode["id"],
+        jsonDecode["titulo"],
+        jsonDecode["descricao"],
+      );
 
-    return tarefas;
+      if (jsonDecode["finalizada"] == true) {
+        tarefa.finalizar();
+      } else {
+        tarefa.iniciar();
+      }
+
+      listaDeTarefas.add(tarefa);
+    }
+
+    return listaDeTarefas;
+  }
+
+  Future<void> salvar(Tarefa tarefa) async {
+    final resposta = await http.post(
+      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas"),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(tarefa.toMap()),
+    );
+
+    if(resposta.statusCode != 200 && resposta.statusCode != 201){
+      throw Exception("Não foi possivel salvar a tarefa");
+    }
+  }
+
+  Future<void> finalizar(int id) async{
+    final resposta = await http.put(
+      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas/$id/finalizar"),
+    );
+
+    if(resposta.statusCode != 200 && resposta.statusCode != 201){
+      throw Exception("Não foi possivel salvar a tarefa");
+    }
+  }
+  Future<void> reabrir(int id) async{
+    final resposta = await http.put(
+      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas/$id/reabrir"),
+    );
+
+    if(resposta.statusCode != 200 && resposta.statusCode != 201){
+      throw Exception("Não foi possivel salvar a tarefa");
+    }
   }
 }

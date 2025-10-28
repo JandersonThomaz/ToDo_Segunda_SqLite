@@ -16,9 +16,9 @@ class Tarefa {
 
   Map<String, Object?> toMap() {
     return {
-      "nome": nome,
+      "titulo": nome,
       "descricao": descricao,
-      "finalizada": finalizada ? 1 : 0
+      "finalizada": finalizada
     };
   }
   

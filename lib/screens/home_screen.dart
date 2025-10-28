@@ -1,4 +1,3 @@
-import 'package:app_segunda/data/tarefa_respository.dart';
 import 'package:app_segunda/models/tarefa.dart';
 import 'package:app_segunda/screens/adicionar_task_screen.dart';
 import 'package:app_segunda/services/Tarefa_service.dart';
@@ -12,68 +11,99 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<Tarefa>> listaDeTarefas;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _carregarListaDeTarefas();
+  }
+
+  void _carregarListaDeTarefas() {
+    listaDeTarefas = TarefaService().listarTodas();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Icon(Icons.notifications),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: CircleAvatar(child: Text("A")),
+          ),
+        ],
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Olá,", style: TextStyle(fontSize: 16)),
+            Text("Olá,", style: TextStyle(fontSize: 16.0)),
             Text("Janderson", style: TextStyle(fontWeight: FontWeight.w700)),
           ],
         ),
-        actions: [
-          Icon(Icons.notifications),
-          CircleAvatar(child: Icon(Icons.person)),
-        ],
       ),
       body: FutureBuilder(
-        future: TarefaRespository().listar(),
+        future: listaDeTarefas,
         builder: (context, asyncSnapshot) {
+          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Text("Carregando..."));
+          }
+
           if (asyncSnapshot.hasError) {
-            return Center(child: Text("Opa... deu erro!"));
+            return Center(
+              child: Text("opa... deu erro! ${asyncSnapshot.error}"),
+            );
           }
 
           if (!asyncSnapshot.hasData) {
-            return Center(child: Text("Opa... nenhuma tarefa criada!"));
+            return Center(child: Text("opa... sem tarefas!"));
           }
-
           var tarefas = asyncSnapshot.data!;
 
           return Column(
             children: [
+              SizedBox(height: 10),
+              Text(
+                "Todas as tarefas",
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: tarefas.length,
                   itemBuilder: (context, index) => Card(
-                    color: Colors.white,
-                    elevation: 0,
                     child: ListTile(
                       leading: Checkbox(
                         value: tarefas[index].finalizada,
-                        onChanged: (valor) {
-                          setState(() {
-                            if (valor == true) {
+                        onChanged: (valor) async {
+                          if (valor == true) {
+                            setState(() {
                               tarefas[index].finalizar();
+                            });
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Tarefa concluida com sucesso!",
-                                  ),
-                                ),
-                              );
-                            } else {
+                            await TarefaService().finalizar(tarefas[index].id);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Tarefa finalizada com sucesso!"),
+                              ),
+                            );
+                          } else {
+                            setState(() {
                               tarefas[index].iniciar();
+                            });
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Tarefa iniciada com sucesso!"),
-                                ),
-                              );
-                            }
-                          });
+                            await TarefaService().reabrir(tarefas[index].id);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Tarefa reaberta com sucesso!"),
+                              ),
+                            );
+                          }
                         },
                       ),
                       title: Text(tarefas[index].nome),
@@ -93,13 +123,18 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(builder: (context) => AdicionarTaskScreen()),
           ).then((valor) {
-            setState(() {});
+            if (valor == true) {
+              setState(() {
+                _carregarListaDeTarefas();
+              });
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Tarefa criada com sucesso!"))
-            );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Tarefa criada com sucesso!")),
+              );
+            }
           });
         },
+
         child: Icon(Icons.add),
       ),
     );

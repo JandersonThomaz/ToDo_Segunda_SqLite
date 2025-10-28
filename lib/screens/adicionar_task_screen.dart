@@ -1,5 +1,6 @@
 import 'package:app_segunda/data/tarefa_respository.dart';
 import 'package:app_segunda/models/tarefa.dart';
+import 'package:app_segunda/services/Tarefa_service.dart';
 import 'package:flutter/material.dart';
 
 class AdicionarTaskScreen extends StatelessWidget {
@@ -67,7 +68,7 @@ class AdicionarTaskScreen extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   //Caso esteja valido
                   Tarefa novaTarefa = Tarefa(
@@ -76,9 +77,9 @@ class AdicionarTaskScreen extends StatelessWidget {
                     descricaoController.text,
                   );
 
-                  TarefaRespository().salvar(novaTarefa);
+                  await TarefaService().salvar(novaTarefa);
 
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 } else {
                   //Caso não esteja válido
                   ScaffoldMessenger.of(context).showSnackBar(
