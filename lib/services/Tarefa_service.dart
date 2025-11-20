@@ -8,7 +8,7 @@ class TarefaService {
     List<Tarefa> listaDeTarefas = [];
 
     final resposta = await http.get(
-      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas"),
+      Uri.parse("https://691f450dbb52a1db22c11e06.mockapi.io/tarefas"),
     );
 
     if (resposta.statusCode != 200) {
@@ -19,7 +19,7 @@ class TarefaService {
 
     for (var jsonDecode in bodyDecodificado) {
       Tarefa tarefa = Tarefa(
-        jsonDecode["id"],
+        int.parse(jsonDecode["id"]),
         jsonDecode["titulo"],
         jsonDecode["descricao"],
       );
@@ -38,7 +38,7 @@ class TarefaService {
 
   Future<void> salvar(Tarefa tarefa) async {
     final resposta = await http.post(
-      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas"),
+      Uri.parse("https://691f450dbb52a1db22c11e06.mockapi.io/tarefas"),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -52,7 +52,15 @@ class TarefaService {
 
   Future<void> finalizar(int id) async{
     final resposta = await http.put(
-      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas/$id/finalizar"),
+      Uri.parse("https://691f450dbb52a1db22c11e06.mockapi.io/tarefas/$id"),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+
+      body: jsonEncode(
+        {
+          "finalizada": true
+        })
     );
 
     if(resposta.statusCode != 200 && resposta.statusCode != 201){
@@ -61,7 +69,25 @@ class TarefaService {
   }
   Future<void> reabrir(int id) async{
     final resposta = await http.put(
-      Uri.parse("https://jandersoncortz-001-site1.ntempurl.com/api/Tarefas/$id/reabrir"),
+      Uri.parse("https://691f450dbb52a1db22c11e06.mockapi.io/tarefas/$id"),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+
+      body: jsonEncode(
+        {
+          "finalizada": false
+        })
+    );
+
+    if(resposta.statusCode != 200 && resposta.statusCode != 201){
+      throw Exception("Não foi possivel salvar a tarefa");
+    }
+  }
+
+  Future<void> excluir(int id) async {
+    final resposta = await http.delete(
+      Uri.parse("https://691f450dbb52a1db22c11e06.mockapi.io/tarefas/$id"),
     );
 
     if(resposta.statusCode != 200 && resposta.statusCode != 201){

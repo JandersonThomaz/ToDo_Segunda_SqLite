@@ -59,9 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          if (!asyncSnapshot.hasData) {
+          print(asyncSnapshot.hasData);
+
+          if (!asyncSnapshot.hasData || asyncSnapshot.data!.isEmpty) {
             return Center(child: Text("opa... sem tarefas!"));
           }
+
           var tarefas = asyncSnapshot.data!;
 
           return Column(
@@ -108,7 +111,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       title: Text(tarefas[index].nome),
                       subtitle: Text(tarefas[index].descricao),
-                      trailing: Icon(Icons.more_vert),
+                      trailing: IconButton(
+                        onPressed: () async{
+                          await TarefaService().excluir(tarefas[index].id);
+                          setState(() {
+                            tarefas.removeAt(index); 
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Tarefa excluída com sucesso!"),
+                              ),
+                            );
+                        }, 
+                        icon: Icon(Icons.delete)
+                      ),
                     ),
                   ),
                 ),
