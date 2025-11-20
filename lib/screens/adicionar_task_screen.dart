@@ -1,3 +1,4 @@
+
 import 'package:app_segunda/data/tarefa_respository.dart';
 import 'package:app_segunda/models/tarefa.dart';
 import 'package:app_segunda/services/Tarefa_service.dart';
@@ -77,7 +78,7 @@ class AdicionarTaskScreen extends StatelessWidget {
                     descricaoController.text,
                   );
 
-                  await TarefaService().salvar(novaTarefa);
+                  await TarefaRespository().salvar(novaTarefa);
 
                   Navigator.pop(context, true);
                 } else {

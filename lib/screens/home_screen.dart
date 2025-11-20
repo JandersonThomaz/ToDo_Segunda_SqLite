@@ -1,3 +1,4 @@
+import 'package:app_segunda/data/tarefa_respository.dart';
 import 'package:app_segunda/models/tarefa.dart';
 import 'package:app_segunda/screens/adicionar_task_screen.dart';
 import 'package:app_segunda/services/Tarefa_service.dart';
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _carregarListaDeTarefas() {
-    listaDeTarefas = TarefaService().listarTodas();
+    listaDeTarefas = TarefaRespository().listar();
   }
 
   @override
@@ -58,9 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text("opa... deu erro! ${asyncSnapshot.error}"),
             );
           }
-
-          print(asyncSnapshot.hasData);
-
+          
           if (!asyncSnapshot.hasData || asyncSnapshot.data!.isEmpty) {
             return Center(child: Text("opa... sem tarefas!"));
           }
@@ -87,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               tarefas[index].finalizar();
                             });
 
-                            await TarefaService().finalizar(tarefas[index].id);
+                            await TarefaRespository().finalizar(tarefas[index].id);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -99,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               tarefas[index].iniciar();
                             });
 
-                            await TarefaService().reabrir(tarefas[index].id);
+                            await TarefaRespository().reabrir(tarefas[index].id);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -113,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: Text(tarefas[index].descricao),
                       trailing: IconButton(
                         onPressed: () async{
-                          await TarefaService().excluir(tarefas[index].id);
+                          await TarefaRespository().excluir(tarefas[index].id);
                           setState(() {
                             tarefas.removeAt(index); 
                           });

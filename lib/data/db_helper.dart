@@ -3,10 +3,10 @@ import 'package:sqflite/sqflite.dart';
 
 Future<Database> getDatabase() async {
   final database = openDatabase(
-    join(await getDatabasesPath(), "tarefas.db"),
+    join(await getDatabasesPath(), "tarefas2.db"),
     onCreate: (db, version) {
       return db.execute(
-        'CREATE TABLE tarefas(id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT, finalizada INTEGER)',
+        'CREATE TABLE tarefas(id INTEGER PRIMARY KEY, titulo TEXT, descricao TEXT, finalizada INTEGER)',
       );
     },
     version: 1,

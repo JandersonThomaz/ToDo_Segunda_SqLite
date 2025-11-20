@@ -23,7 +23,7 @@ class TarefaRespository {
     for (Map tarefaMap in tarefasMaps) {
       Tarefa tarefa = Tarefa(
         tarefaMap["id"],
-        tarefaMap["nome"],
+        tarefaMap["titulo"],
         tarefaMap["descricao"],
       );
 
@@ -37,5 +37,40 @@ class TarefaRespository {
       tarefas.add(tarefa);
     }
     return tarefas;
+  }
+
+  Future<void> finalizar(int id) async {
+
+    final db = await getDatabase();
+
+    await db.update(
+      'tarefas',
+      {'finalizada': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> reabrir(int id) async {
+
+    final db = await getDatabase();
+
+    await db.update(
+      'tarefas',
+      {'finalizada': 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  } 
+
+  Future<void> excluir(int id) async {
+
+    final db = await getDatabase();
+
+    await db.delete(
+      'tarefas',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
